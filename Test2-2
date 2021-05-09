@@ -1,0 +1,148 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+#define MAXSIZE 20
+typedef char datatype; 
+typedef struct Stack{
+	datatype data[21][MAXSIZE]; 
+	int top; 
+};
+typedef struct Queue{
+	datatype data[21][MAXSIZE];
+	int front;
+	int rear;
+};
+
+char *Delete_Queue(Queue *L){
+	char a[MAXSIZE];
+	if(L->front==L->rear){
+		printf("QueueEmpty\n");
+		return 0;
+	} 
+	else{
+		strcpy(a,L->data[L->front]);
+		L->front=L->front+1;
+		return a;
+	}
+}
+
+char *Delete_Stack(Stack *L){
+	char a[MAXSIZE];
+	if(L->top==-1){
+		printf("StackEmpty\n");
+		return 0;
+	}
+	else{
+		strcpy(a,L->data[L->top-1]);
+		L->top=L->top-1;
+		return a;
+	}
+}
+
+int Empty_Stack(Stack *L){
+	if(L->top==0) return 0;
+	else return 1;
+}
+
+char Name[10][MAXSIZE-1]={"lixiao","caorui","huangsiheng","dingjian","liyuhang","sunzengyi","wangchaoxun","towenqi","duzerui","balin"};
+
+int main(){
+	FILE *fp1,*fp2;
+	fp1=fopen("outfile1","w+");
+	fp2=fopen("outfile2","w+");
+	
+	Stack *S=(Stack*)malloc(sizeof(Stack));
+	S->top=0;
+	for(int i=0;i<10;i++)
+		if(S->top==10)
+     		printf("StackFull\n");  
+  		else{
+  			strcpy(S->data[S->top],Name[i]); 
+			S->top=S->top+1;     
+		  }
+    
+	Queue *Q=(Queue*)malloc(sizeof(Queue));
+	Q->front=Q->rear=0;
+	for(int i=0;i<10;i++) 
+		if((Q->rear+1)%11==Q->front)
+    		printf("QueueFull\n");  
+		else{
+			strcpy(Q->data[Q->rear],Name[i]);
+			Q->rear=Q->rear+1;
+		}
+	
+	for(int i=0;i<49;i++) fprintf(fp2,"\n");//为栈的数据在outfile2中的写入留出空间
+	 
+	char strtmp[MAXSIZE];		
+	for(int i=0;i<10;i++){
+		strcpy(strtmp,Delete_Queue(Q));
+		fprintf(fp1,"%s\n",strtmp);
+		fprintf(fp2,"%s\n",strtmp);
+	}
+	
+	fseek(fp2,0,SEEK_SET);
+	for(int i=0;i<10;i++){
+		strcpy(strtmp,Delete_Stack(S));
+		fprintf(fp1,"%s\n",strtmp);
+		fprintf(fp2,"%s",strtmp);
+		if(i<9) fprintf(fp2,"\n");
+	}
+	
+	fprintf(fp1,"@");
+	fseek(fp2,0,SEEK_END);
+	fprintf(fp2,"@");
+	
+	fseek(fp1,0,SEEK_SET);
+	fseek(fp2,0,SEEK_SET);
+	
+	int ans;
+	//栈和队列初始化 
+	S->top=0;
+	Q->front=Q->rear=0;
+	//判断outfile1
+	while(strcmp(strtmp,"@")!=0){
+		fscanf(fp1,"%s\n",strtmp);
+		strcpy(S->data[S->top],strtmp); 
+		S->top=S->top+1;
+		strcpy(Q->data[Q->rear],strtmp);
+		Q->rear=Q->rear+1;
+	}
+	
+	while(Empty_Stack(S)){
+		if(strcmp(Delete_Stack(S),Delete_Queue(Q))==0) ans=1;
+		else{
+			ans=0;
+			break;
+		}
+	}
+	
+	if(ans) printf("outfile1是回文\n");
+	else printf("outfile1不是回文"); 
+	
+	//栈和队列初始化
+	S->top=0;
+	Q->front=Q->rear=0;
+	//判断outfile2 
+	while(strcmp(strtmp,"@")!=0){
+		fscanf(fp1,"%s\n",strtmp);
+		strcpy(S->data[S->top],strtmp); 
+		S->top=S->top+1;
+		strcpy(Q->data[Q->rear],strtmp);
+		Q->rear=Q->rear+1;
+	}
+	
+	while(Empty_Stack(S)){
+		if(Delete_Stack(S)==Delete_Queue(Q)) ans=1;
+		else{
+			ans=0;
+			break;
+		}
+	}
+	if(ans) printf("outfile2是回文\n");
+	else printf("outfile2不是回文"); 
+	
+	fclose(fp1);
+	fclose(fp2);
+	
+	return 0;
+}
