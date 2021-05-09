@@ -1,0 +1,83 @@
+#include<stdio.h> 
+#include<stdlib.h>
+typedef int datatype;
+typedef struct Node{
+	datatype data;
+	struct Node* next;
+};
+
+const int S=7,M=19;
+
+char Name[30][4]={"aaa","bbb","ccc","ddd","eee","fff","ggg","hhh","iii","jjj","kkk","lll","mmm","nnn","ooo","ppp","qqq","rrr","sss","ttt","uuu","vvv","www","xxx","yyy","zzz","aab","aac","aad","aae"};
+int NN[30]={0};
+
+int main(){
+	struct Node *p, *head, *tail, *q;
+    FILE *fp,*outfp;
+    fp=fopen("input.ifo","w+");
+    outfp=fopen("output.ifo","w");
+    int k=1,i=-1;
+	while(k<=30)
+	{
+		i=rand()%30;
+		if(!NN[i]) NN[i]=k++;
+	}//生成1~30的随机序号
+    for(i=0;i<30;i++) fprintf(fp,"%s %d\n",Name[i],NN[i]);
+
+
+    int number = 0, count = 0;
+    p = (struct Node*) malloc (sizeof(struct Node));
+    p -> data = NN[0];
+    p -> next = NULL;
+    head = p;
+    tail = p;
+    for(i = 1; i < 30; i++)
+    {
+        p = (struct Node*) malloc (sizeof(struct Node));
+        p -> data = NN[i];
+				if(!i) head=p;
+        tail -> next = p;
+        tail = p;
+        p -> next = NULL;
+    }
+    tail -> next = head;
+    q = head;
+    
+	while(q -> next != head)//连接头尾节点 建立循环链表 
+        q = q -> next;
+	
+	printf("各节点值为\n");//遍历输出每个节点 
+	for(i=0;i<30;i++){
+		printf("%d\n",p->data);
+		p=p->next;
+	} 
+	printf("\nStart Josephus\n");
+	
+	fprintf(outfp,"编号     初始位置\n");
+	
+	while((q->next)->data!=S) q=q->next;//寻找编号为S的节点 
+	
+	
+    while(count<29)
+    {
+        p = q -> next;
+        number++;
+        if(number % M == 0)
+		{
+            q -> next = p -> next;
+			fprintf(outfp,"%-13d",p->data);
+			for(int j=0;j<30;j++) if(NN[j]==p->data) fprintf(outfp,"%d\n",j+1);
+            free(p);
+            count++;
+        }
+        else
+        {
+            q = p;
+        }
+    }
+    printf("\n存活者编号为%d\n", q -> data);
+    
+    fclose(fp);
+    fclose(outfp);
+	return 0;
+} 
